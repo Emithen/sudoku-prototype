@@ -1,22 +1,6 @@
 export type CellValue = number | null;
 export type Position = { row: number; col: number } | null;
 
-export const INITIAL_BOARD: CellValue[][] = [
-  [5, 3, null, null, 7, null, null, null, null],
-  [6, null, null, 1, 9, 5, null, null, null],
-  [null, 9, 8, null, null, null, null, 6, null],
-  [8, null, null, null, 6, null, null, null, 3],
-  [4, null, null, 8, null, 3, null, null, 1],
-  [7, null, null, null, 2, null, null, null, 6],
-  [null, 6, null, null, null, null, 2, 8, null],
-  [null, null, null, 4, 1, 9, null, null, 5],
-  [null, null, null, null, 8, null, null, 7, 9],
-];
-
-export const GIVEN: boolean[][] = INITIAL_BOARD.map((row) =>
-  row.map((v) => v !== null),
-);
-
 const isSameBox = (r1: number, c1: number, r2: number, c2: number) =>
   Math.floor(r1 / 3) === Math.floor(r2 / 3) &&
   Math.floor(c1 / 3) === Math.floor(c2 / 3);
