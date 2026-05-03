@@ -2,13 +2,21 @@ import { useEffect, useState } from "react";
 import { Board } from "./Board";
 import { NumberPad } from "./NumberPad";
 import { GameCompleteModal } from "./GameCompleteModal";
-import { PUZZLES } from "./puzzles";
+import { generatePuzzle } from "./generatePuzzle";
 import type { CellValue, Position } from "./Board";
 
-// 테스트할 케이스를 바꿔가며 확인: empty | normal | almostComplete
-const ACTIVE_PUZZLE = PUZZLES.almostComplete;
-const GIVEN = ACTIVE_PUZZLE.board.map((r) => r.map((v) => v !== null));
-const freshBoard = () => ACTIVE_PUZZLE.board.map((r) => [...r]);
+type PuzzleState = {
+  board: CellValue[][];
+  given: boolean[][];
+};
+
+const makePuzzle = (givens = 70): PuzzleState => {
+  const puzzle = generatePuzzle(givens);
+  return {
+    board: puzzle,
+    given: puzzle.map((r) => r.map((v) => v !== null)),
+  };
+};
 
 const isBoardComplete = (board: CellValue[][]): boolean => {
   const hasAllNine = (cells: CellValue[]) => {
@@ -34,7 +42,7 @@ const isBoardComplete = (board: CellValue[][]): boolean => {
 };
 
 export const Game = () => {
-  const [board, setBoard] = useState<CellValue[][]>(freshBoard);
+  const [{ board, given }, setPuzzle] = useState<PuzzleState>(makePuzzle);
   const [selected, setSelected] = useState<Position>(null);
   const [complete, setComplete] = useState(false);
 
@@ -48,31 +56,31 @@ export const Game = () => {
     );
   };
 
-  const handleNumberInput = (value: number | null) => {
+  const handleNumberInput = (value: CellValue) => {
     if (!selected) return;
     const { row, col } = selected;
-    if (GIVEN[row][col]) return;
-    setBoard((prev) => {
-      const next = prev.map((r) => [...r]);
+    if (given[row][col]) return;
+    setPuzzle((prev) => {
+      const next = prev.board.map((r) => [...r]);
       next[row][col] = value;
-      return next;
+      return { ...prev, board: next };
     });
   };
 
   const handleNewGame = () => {
-    setBoard(freshBoard());
+    setPuzzle(makePuzzle());
     setSelected(null);
     setComplete(false);
   };
 
-  const isInputDisabled = !selected || GIVEN[selected.row][selected.col];
+  const isInputDisabled = !selected || given[selected.row][selected.col];
 
   return (
     <div className="w-full h-screen flex flex-col items-center bg-white">
       <div className="flex flex-col items-center justify-center flex-1 w-full px-4 gap-6">
         <Board
           board={board}
-          given={GIVEN}
+          given={given}
           selected={selected}
           onCellClick={handleCellClick}
         />
