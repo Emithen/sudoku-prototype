@@ -1,0 +1,16 @@
+import { BrowserRouter, Route, Routes } from "react-router";
+import { Home } from "./pages/Home";
+import { Game } from "./pages/Game";
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route index element={<Home />}></Route>
+        <Route path="game" element={<Game />}></Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
