@@ -1,7 +1,11 @@
+import { useNavigate } from "react-router";
+
 export const MenuSection = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col items-center gap-3 w-full max-w-xs px-6">
-      <MenuItem title="새 게임" primary />
+      <MenuItem title="새 게임" primary onClick={() => navigate("/game")} />
       <MenuItem title="계속하기" />
       <MenuItem title="설정" />
     </div>
@@ -11,12 +15,15 @@ export const MenuSection = () => {
 const MenuItem = ({
   title,
   primary = false,
+  onClick,
 }: {
   title: string;
   primary?: boolean;
+  onClick?: () => void;
 }) => {
   return (
     <button
+      onClick={onClick}
       className={`w-full py-3.5 rounded-xl text-base font-semibold tracking-wide transition-all duration-150 cursor-pointer
         ${
           primary
