@@ -1,9 +1,7 @@
-import { useState } from "react";
+export type CellValue = number | null;
+export type Position = { row: number; col: number } | null;
 
-type CellValue = number | null;
-type Position = { row: number; col: number } | null;
-
-const INITIAL_BOARD: CellValue[][] = [
+export const INITIAL_BOARD: CellValue[][] = [
   [5, 3, null, null, 7, null, null, null, null],
   [6, null, null, 1, 9, 5, null, null, null],
   [null, 9, 8, null, null, null, null, 6, null],
@@ -15,7 +13,7 @@ const INITIAL_BOARD: CellValue[][] = [
   [null, null, null, null, 8, null, null, 7, 9],
 ];
 
-const GIVEN: boolean[][] = INITIAL_BOARD.map((row) =>
+export const GIVEN: boolean[][] = INITIAL_BOARD.map((row) =>
   row.map((v) => v !== null),
 );
 
@@ -39,40 +37,37 @@ const getCellBg = (
   return "bg-white";
 };
 
-// --- Main component ---
+// --- Components ---
 
-export const Board = () => {
-  const [board] = useState<CellValue[][]>(INITIAL_BOARD);
-  const [selected, setSelected] = useState<Position>(null);
-
-  const handleCellClick = (row: number, col: number) => {
-    setSelected((prev) =>
-      prev?.row === row && prev?.col === col ? null : { row, col },
-    );
-  };
-
-  return (
-    <div className="w-full max-w-sm aspect-square bg-slate-800 p-0.5 grid grid-cols-3 grid-rows-3 gap-0.5">
-      {Array.from({ length: 9 }, (_, i) => {
-        const br = Math.floor(i / 3);
-        const bc = i % 3;
-        return (
-          <Box
-            key={`${br}-${bc}`}
-            boxRow={br}
-            boxCol={bc}
-            board={board}
-            given={GIVEN}
-            selected={selected}
-            onCellClick={handleCellClick}
-          />
-        );
-      })}
-    </div>
-  );
-};
-
-// --- Sub-components ---
+export const Board = ({
+  board,
+  given,
+  selected,
+  onCellClick,
+}: {
+  board: CellValue[][];
+  given: boolean[][];
+  selected: Position;
+  onCellClick: (row: number, col: number) => void;
+}) => (
+  <div className="w-full max-w-sm aspect-square bg-slate-800 p-0.5 grid grid-cols-3 grid-rows-3 gap-0.5">
+    {Array.from({ length: 9 }, (_, i) => {
+      const br = Math.floor(i / 3);
+      const bc = i % 3;
+      return (
+        <Box
+          key={`${br}-${bc}`}
+          boxRow={br}
+          boxCol={bc}
+          board={board}
+          given={given}
+          selected={selected}
+          onCellClick={onCellClick}
+        />
+      );
+    })}
+  </div>
+);
 
 // 3 x 3 박스
 const Box = ({
