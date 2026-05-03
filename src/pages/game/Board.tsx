@@ -39,34 +39,40 @@ const getCellBg = (
   return "bg-white";
 };
 
-// --- Sub-components ---
+// --- Main component ---
 
-const Cell = ({
-  value,
-  isGiven,
-  bg,
-  onClick,
-}: {
-  value: CellValue;
-  isGiven: boolean;
-  bg: string;
-  onClick: () => void;
-}) => (
-  <div
-    onClick={onClick}
-    className={`flex items-center justify-center cursor-pointer select-none transition-colors duration-75 ${bg}`}
-  >
-    {value !== null && (
-      <span
-        className={`text-lg leading-none ${
-          isGiven ? "font-semibold text-slate-800" : "font-medium text-blue-500"
-        }`}
-      >
-        {value}
-      </span>
-    )}
-  </div>
-);
+export const Board = () => {
+  const [board] = useState<CellValue[][]>(INITIAL_BOARD);
+  const [selected, setSelected] = useState<Position>(null);
+
+  const handleCellClick = (row: number, col: number) => {
+    setSelected((prev) =>
+      prev?.row === row && prev?.col === col ? null : { row, col },
+    );
+  };
+
+  return (
+    <div className="w-full max-w-sm aspect-square bg-slate-800 p-0.5 grid grid-cols-3 grid-rows-3 gap-0.5">
+      {Array.from({ length: 9 }, (_, i) => {
+        const br = Math.floor(i / 3);
+        const bc = i % 3;
+        return (
+          <Box
+            key={`${br}-${bc}`}
+            boxRow={br}
+            boxCol={bc}
+            board={board}
+            given={GIVEN}
+            selected={selected}
+            onCellClick={handleCellClick}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
+// --- Sub-components ---
 
 // 3 x 3 박스
 const Box = ({
@@ -101,35 +107,30 @@ const Box = ({
   </div>
 );
 
-// --- Main component ---
-
-export const Board = () => {
-  const [board] = useState<CellValue[][]>(INITIAL_BOARD);
-  const [selected, setSelected] = useState<Position>(null);
-
-  const handleCellClick = (row: number, col: number) => {
-    setSelected((prev) =>
-      prev?.row === row && prev?.col === col ? null : { row, col },
-    );
-  };
-
-  return (
-    <div className="w-full max-w-sm aspect-square bg-slate-800 p-0.5 grid grid-cols-3 grid-rows-3 gap-0.5">
-      {Array.from({ length: 9 }, (_, i) => {
-        const br = Math.floor(i / 3);
-        const bc = i % 3;
-        return (
-          <Box
-            key={`${br}-${bc}`}
-            boxRow={br}
-            boxCol={bc}
-            board={board}
-            given={GIVEN}
-            selected={selected}
-            onCellClick={handleCellClick}
-          />
-        );
-      })}
-    </div>
-  );
-};
+// 1 x 1 칸
+const Cell = ({
+  value,
+  isGiven,
+  bg,
+  onClick,
+}: {
+  value: CellValue;
+  isGiven: boolean;
+  bg: string;
+  onClick: () => void;
+}) => (
+  <div
+    onClick={onClick}
+    className={`flex items-center justify-center cursor-pointer select-none transition-colors duration-75 ${bg}`}
+  >
+    {value !== null && (
+      <span
+        className={`text-lg leading-none ${
+          isGiven ? "font-semibold text-slate-800" : "font-medium text-blue-500"
+        }`}
+      >
+        {value}
+      </span>
+    )}
+  </div>
+);
