@@ -3,7 +3,7 @@ import { Board } from "./Board";
 import { NumberPad } from "./NumberPad";
 import { GameCompleteModal } from "./GameCompleteModal";
 import { generatePuzzle } from "./generatePuzzle";
-import type { CellValue, Position } from "./Board";
+import type { Position, CellValue } from "./type";
 
 type PuzzleState = {
   board: CellValue[][];

@@ -1,5 +1,4 @@
-export type CellValue = number | null;
-export type Position = { row: number; col: number } | null;
+import type { Position, CellValue } from "./type";
 
 const isSameBox = (r1: number, c1: number, r2: number, c2: number) =>
   Math.floor(r1 / 3) === Math.floor(r2 / 3) &&
