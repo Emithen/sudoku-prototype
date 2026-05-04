@@ -1,4 +1,4 @@
-import type { CellValue } from "./Board";
+import type { CellValue } from "./type"
 
 // 내부적으로 0을 빈 칸으로 사용, 반환 시 null로 변환
 type Grid = number[][];

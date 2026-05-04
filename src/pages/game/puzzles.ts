@@ -1,4 +1,4 @@
-import type { CellValue } from "./Board";
+import { type CellValue } from "./type";
 
 export type Puzzle = {
   label: string;
