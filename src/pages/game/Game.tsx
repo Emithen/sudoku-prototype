@@ -10,7 +10,15 @@ type PuzzleState = {
   given: boolean[][];
 };
 
-const makePuzzle = (givens = 70): PuzzleState => {
+const DIFFICULTY_GIVENS: Record<string, number> = {
+  easy: 54,
+  normal: 42,
+  hard: 33,
+};
+
+const makePuzzle = (): PuzzleState => {
+  const stored = localStorage.getItem("sudoku-difficulty") ?? "normal";
+  const givens = DIFFICULTY_GIVENS[stored] ?? DIFFICULTY_GIVENS.normal;
   const puzzle = generatePuzzle(givens);
   return {
     board: puzzle,
