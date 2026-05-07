@@ -16,6 +16,8 @@ const DIFFICULTY_GIVENS: Record<string, number> = {
   hard: 33,
 };
 
+const SAVE_KEY = "sudoku-saved-game";
+
 const makePuzzle = (): PuzzleState => {
   const stored = localStorage.getItem("sudoku-difficulty") ?? "normal";
   const givens = DIFFICULTY_GIVENS[stored] ?? DIFFICULTY_GIVENS.normal;
@@ -24,6 +26,18 @@ const makePuzzle = (): PuzzleState => {
     board: puzzle,
     given: puzzle.map((r) => r.map((v) => v !== null)),
   };
+};
+
+const loadOrMakePuzzle = (): PuzzleState => {
+  const saved = localStorage.getItem(SAVE_KEY);
+  if (saved) {
+    try {
+      return JSON.parse(saved) as PuzzleState;
+    } catch {
+      // 손상된 데이터면 새 퍼즐 생성
+    }
+  }
+  return makePuzzle();
 };
 
 const isBoardComplete = (board: CellValue[][]): boolean => {
@@ -50,11 +64,12 @@ const isBoardComplete = (board: CellValue[][]): boolean => {
 };
 
 export const Game = () => {
-  const [{ board, given }, setPuzzle] = useState<PuzzleState>(makePuzzle);
+  const [{ board, given }, setPuzzle] = useState<PuzzleState>(loadOrMakePuzzle);
   const [selected, setSelected] = useState<Position>(null);
   const [complete, setComplete] = useState(false);
 
   useEffect(() => {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ board, given }));
     if (isBoardComplete(board)) setComplete(true);
   }, [board]);
 

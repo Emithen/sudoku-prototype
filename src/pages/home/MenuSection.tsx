@@ -15,6 +15,7 @@ export const MenuSection = () => {
 
   const handleDifficultySelect = (difficulty: Difficulty) => {
     localStorage.setItem("sudoku-difficulty", difficulty);
+    localStorage.removeItem("sudoku-saved-game");
     navigate("/game");
   };
 
