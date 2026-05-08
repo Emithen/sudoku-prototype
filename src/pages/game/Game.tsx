@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Board } from "./Board";
 import { NumberPad } from "./NumberPad";
 import { GameCompleteModal } from "./GameCompleteModal";
+import { GameFailModal } from "./GameFailModal";
 import { generatePuzzle } from "./generatePuzzle";
 import type { Position, CellValue } from "./type";
 
@@ -15,6 +16,8 @@ const DIFFICULTY_GIVENS: Record<string, number> = {
   normal: 42,
   hard: 33,
 };
+
+const GAME_TIME = 2;
 
 const SAVE_KEY = "sudoku-saved-game";
 
@@ -38,6 +41,23 @@ const loadOrMakePuzzle = (): PuzzleState => {
     }
   }
   return makePuzzle();
+};
+
+const getInitialTimeLeft = (): number => {
+  const saved = localStorage.getItem(SAVE_KEY);
+  if (saved) {
+    try {
+      const { timeLeft } = JSON.parse(saved);
+      if (typeof timeLeft === "number") return timeLeft;
+    } catch {}
+  }
+  return GAME_TIME;
+};
+
+const formatTime = (seconds: number): string => {
+  const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+  const s = (seconds % 60).toString().padStart(2, "0");
+  return `${m}:${s}`;
 };
 
 const isBoardComplete = (board: CellValue[][]): boolean => {
@@ -67,11 +87,30 @@ export const Game = () => {
   const [{ board, given }, setPuzzle] = useState<PuzzleState>(loadOrMakePuzzle);
   const [selected, setSelected] = useState<Position>(null);
   const [complete, setComplete] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number>(getInitialTimeLeft);
+  const [failed, setFailed] = useState<boolean>(() => getInitialTimeLeft() === 0);
 
   useEffect(() => {
-    localStorage.setItem(SAVE_KEY, JSON.stringify({ board, given }));
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ board, given, timeLeft }));
+  }, [board, given, timeLeft]);
+
+  useEffect(() => {
     if (isBoardComplete(board)) setComplete(true);
   }, [board]);
+
+  useEffect(() => {
+    if (complete || failed) return;
+    const id = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          setFailed(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [complete, failed]);
 
   const handleCellClick = (row: number, col: number) => {
     setSelected((prev) =>
@@ -90,17 +129,27 @@ export const Game = () => {
     });
   };
 
-  const handleNewGame = () => {
+  const resetGame = () => {
+    localStorage.removeItem(SAVE_KEY);
     setPuzzle(makePuzzle());
+    setTimeLeft(GAME_TIME);
     setSelected(null);
     setComplete(false);
+    setFailed(false);
   };
 
-  const isInputDisabled = !selected || given[selected.row][selected.col];
+  const isInputDisabled = failed || !selected || given[selected.row][selected.col];
 
   return (
     <div className="w-full h-screen flex flex-col items-center bg-white">
       <div className="flex flex-col items-center justify-center flex-1 w-full px-4 gap-6">
+        <p
+          className={`text-2xl font-mono font-bold tabular-nums ${
+            timeLeft < 60 ? "text-red-500" : "text-slate-700"
+          }`}
+        >
+          {formatTime(timeLeft)}
+        </p>
         <Board
           board={board}
           given={given}
@@ -109,7 +158,8 @@ export const Game = () => {
         />
         <NumberPad onInput={handleNumberInput} disabled={isInputDisabled} />
       </div>
-      {complete && <GameCompleteModal onNewGame={handleNewGame} />}
+      {complete && <GameCompleteModal onNewGame={resetGame} />}
+      {failed && <GameFailModal onRetry={resetGame} />}
     </div>
   );
 };
