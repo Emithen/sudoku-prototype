@@ -109,8 +109,8 @@ export const Game = () => {
 
   // 상태 변경 사항 로컬 스토리지에 반영
   useEffect(() => {
-    localStorage.setItem(SAVE_KEY, JSON.stringify({ board, given, timeLeft, phase }));
-  }, [board, given, timeLeft, phase]);
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ board, given, timeLeft, phase, difficulty }));
+  }, [board, given, timeLeft, phase, difficulty]);
 
   // 성공 판정
   useEffect(() => {
