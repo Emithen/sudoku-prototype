@@ -20,9 +20,18 @@ const DIFFICULTY_GIVENS: Record<string, number> = {
   hard: 33,
 };
 
-const makePuzzle = (): PuzzleState => {
-  const stored = localStorage.getItem("sudoku-difficulty") ?? "normal";
-  const givens = DIFFICULTY_GIVENS[stored] ?? DIFFICULTY_GIVENS.normal;
+const parseSaved = () => {
+  const saved = localStorage.getItem(SAVE_KEY);
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch {}
+  }
+  return null;
+};
+
+const makePuzzle = (difficulty: string): PuzzleState => {
+  const givens = DIFFICULTY_GIVENS[difficulty] ?? DIFFICULTY_GIVENS.normal;
   const puzzle = generatePuzzle(givens);
   return {
     board: puzzle,
@@ -31,16 +40,12 @@ const makePuzzle = (): PuzzleState => {
 };
 
 const loadOrMakePuzzle = (): PuzzleState => {
-  const saved = localStorage.getItem(SAVE_KEY);
-  if (saved) {
-    try {
-      return JSON.parse(saved) as PuzzleState;
-    } catch {
-      // 손상된 데이터면 새 퍼즐 생성
-    }
-  }
-  return makePuzzle();
+  const data = parseSaved();
+  if (data?.board && data?.given) return { board: data.board, given: data.given };
+  return makePuzzle(data?.difficulty ?? "normal");
 };
+
+const getInitialDifficulty = (): string => parseSaved()?.difficulty ?? "normal";
 
 const getInitialTimeLeft = (): number => {
   const saved = localStorage.getItem(SAVE_KEY);
@@ -100,6 +105,7 @@ export const Game = () => {
   const [selected, setSelected] = useState<Position>(null);
   const [phase, setPhase] = useState<GamePhase>(getInitialPhase);
   const [timeLeft, setTimeLeft] = useState<number>(getInitialTimeLeft);
+  const difficulty = getInitialDifficulty();
 
   // 상태 변경 사항 로컬 스토리지에 반영
   useEffect(() => {
@@ -145,7 +151,7 @@ export const Game = () => {
 
   const resetGame = () => {
     localStorage.removeItem(SAVE_KEY);
-    setPuzzle(makePuzzle());
+    setPuzzle(makePuzzle(difficulty));
     setTimeLeft(GAME_TIME);
     setSelected(null);
     setPhase("playing");

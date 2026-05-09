@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { DIFFICULTIES } from "../../parameters/ui";
+import { SAVE_KEY } from "../../parameters/game";
 
 type Difficulty = (typeof DIFFICULTIES)[number]["key"];
 
 export const MenuSection = () => {
   const navigate = useNavigate();
   const [showDifficulty, setShowDifficulty] = useState(false);
-  const hasSavedGame = localStorage.getItem("sudoku-saved-game") !== null;
+  const hasSavedGame = localStorage.getItem(SAVE_KEY) !== null;
 
   const handleDifficultySelect = (difficulty: Difficulty) => {
-    localStorage.setItem("sudoku-difficulty", difficulty);
-    localStorage.removeItem("sudoku-saved-game");
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ difficulty }));
     navigate("/game");
   };
 
