@@ -5,6 +5,7 @@ import { GameCompleteModal } from "./GameCompleteModal";
 import { GameFailModal } from "./GameFailModal";
 import { generatePuzzle } from "./generatePuzzle";
 import type { Position, CellValue } from "./type";
+import { GAME_TIME, SAVE_KEY } from "../../parameters/game";
 
 type PuzzleState = {
   board: CellValue[][];
@@ -16,10 +17,6 @@ const DIFFICULTY_GIVENS: Record<string, number> = {
   normal: 42,
   hard: 33,
 };
-
-const GAME_TIME = 360;
-
-const SAVE_KEY = "sudoku-saved-game";
 
 const makePuzzle = (): PuzzleState => {
   const stored = localStorage.getItem("sudoku-difficulty") ?? "normal";
