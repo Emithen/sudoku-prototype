@@ -37,7 +37,7 @@ export const MenuSection = () => {
         </div>
       )}
       <MenuItem
-        title="계속하기"
+        title="이어하기"
         disabled={!hasSavedGame}
         onClick={() => navigate("/game")}
       />
