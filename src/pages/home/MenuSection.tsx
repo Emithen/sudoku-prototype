@@ -1,11 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-
-const DIFFICULTIES = [
-  { key: "easy", label: "쉬움" },
-  { key: "normal", label: "보통" },
-  { key: "hard", label: "어려움" },
-] as const;
+import { DIFFICULTIES } from "../../parameters/ui";
 
 type Difficulty = (typeof DIFFICULTIES)[number]["key"];
 
