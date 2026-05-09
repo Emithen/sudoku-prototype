@@ -12,6 +12,7 @@ type Difficulty = (typeof DIFFICULTIES)[number]["key"];
 export const MenuSection = () => {
   const navigate = useNavigate();
   const [showDifficulty, setShowDifficulty] = useState(false);
+  const hasSavedGame = localStorage.getItem("sudoku-saved-game") !== null;
 
   const handleDifficultySelect = (difficulty: Difficulty) => {
     localStorage.setItem("sudoku-difficulty", difficulty);
@@ -40,7 +41,11 @@ export const MenuSection = () => {
           ))}
         </div>
       )}
-      <MenuItem title="계속하기" />
+      <MenuItem
+        title="계속하기"
+        disabled={!hasSavedGame}
+        onClick={() => navigate("/game")}
+      />
       <MenuItem title="설정" />
     </div>
   );
@@ -50,23 +55,28 @@ const MenuItem = ({
   title,
   primary = false,
   active = false,
+  disabled = false,
   onClick,
 }: {
   title: string;
   primary?: boolean;
   active?: boolean;
+  disabled?: boolean;
   onClick?: () => void;
 }) => {
   return (
     <button
       onClick={onClick}
-      className={`w-full py-3.5 rounded-xl text-base font-semibold tracking-wide transition-all duration-150 cursor-pointer
+      disabled={disabled}
+      className={`w-full py-3.5 rounded-xl text-base font-semibold tracking-wide transition-all duration-150
         ${
-          primary
-            ? active
-              ? "bg-slate-600 text-white"
-              : "bg-slate-800 text-white hover:bg-slate-700 active:scale-95"
-            : "bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95"
+          disabled
+            ? "bg-slate-100 text-slate-300 cursor-not-allowed"
+            : primary
+              ? active
+                ? "bg-slate-600 text-white cursor-pointer"
+                : "bg-slate-800 text-white hover:bg-slate-700 active:scale-95 cursor-pointer"
+              : "bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95 cursor-pointer"
         }`}
     >
       {title}
