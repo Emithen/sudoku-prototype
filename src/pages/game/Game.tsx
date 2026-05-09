@@ -53,9 +53,17 @@ const getInitialTimeLeft = (): number => {
   return GAME_TIME;
 };
 
+const VALID_PHASES: GamePhase[] = ["playing", "failed", "continued", "complete"];
+
 const getInitialPhase = (): GamePhase => {
-  const timeLeft = getInitialTimeLeft();
-  return timeLeft === 0 ? "failed" : "playing";
+  const saved = localStorage.getItem(SAVE_KEY);
+  if (saved) {
+    try {
+      const { phase } = JSON.parse(saved);
+      if (VALID_PHASES.includes(phase)) return phase as GamePhase;
+    } catch {}
+  }
+  return getInitialTimeLeft() === 0 ? "failed" : "playing";
 };
 
 const formatTime = (seconds: number): string => {
@@ -93,10 +101,12 @@ export const Game = () => {
   const [phase, setPhase] = useState<GamePhase>(getInitialPhase);
   const [timeLeft, setTimeLeft] = useState<number>(getInitialTimeLeft);
 
+  // 상태 변경 사항 로컬 스토리지에 반영
   useEffect(() => {
-    localStorage.setItem(SAVE_KEY, JSON.stringify({ board, given, timeLeft }));
-  }, [board, given, timeLeft]);
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ board, given, timeLeft, phase }));
+  }, [board, given, timeLeft, phase]);
 
+  // 성공 판정
   useEffect(() => {
     if (phase === "playing" && isBoardComplete(board)) setPhase("complete");
   }, [board, phase]);
@@ -145,7 +155,7 @@ export const Game = () => {
     setPhase("continued");
   };
 
-  const isInputDisabled = phase === "failed" || !selected || given[selected.row][selected.col];
+  const isInputDisabled = phase === "failed" || phase === "complete" || !selected || given[selected.row][selected.col];
 
   return (
     <div className="w-full h-screen flex flex-col items-center bg-white">
@@ -155,7 +165,7 @@ export const Game = () => {
             phase === "playing" && timeLeft < 60 ? "text-red-500" : "text-slate-700"
           }`}
         >
-          {formatTime(timeLeft)}
+          {phase === "continued" ? "무제한" : formatTime(timeLeft)}
         </p>
         <Board
           board={board}
