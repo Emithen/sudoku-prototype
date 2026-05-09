@@ -17,7 +17,7 @@ const DIFFICULTY_GIVENS: Record<string, number> = {
   hard: 33,
 };
 
-const GAME_TIME = 2;
+const GAME_TIME = 360;
 
 const SAVE_KEY = "sudoku-saved-game";
 
