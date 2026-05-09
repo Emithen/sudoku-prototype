@@ -1,6 +1,11 @@
 import { useNavigate } from "react-router";
 
-export const GameFailModal = ({ onRetry }: { onRetry: () => void }) => {
+type Props = {
+  onNewGame: () => void;
+  onContinue: () => void;
+};
+
+export const GameFailModal = ({ onNewGame, onContinue }: Props) => {
   const navigate = useNavigate();
 
   return (
@@ -14,10 +19,16 @@ export const GameFailModal = ({ onRetry }: { onRetry: () => void }) => {
         </div>
         <div className="flex flex-col w-full gap-3">
           <button
-            onClick={onRetry}
+            onClick={onNewGame}
             className="w-full py-3.5 rounded-xl bg-slate-800 text-white text-base font-semibold hover:bg-slate-700 active:scale-95 transition-all duration-150 cursor-pointer"
           >
-            다시 시도
+            새 게임
+          </button>
+          <button
+            onClick={onContinue}
+            className="w-full py-3.5 rounded-xl bg-slate-100 text-slate-600 text-base font-semibold hover:bg-slate-200 active:scale-95 transition-all duration-150 cursor-pointer"
+          >
+            계속하기
           </button>
           <button
             onClick={() => navigate("/")}

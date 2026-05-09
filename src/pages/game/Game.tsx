@@ -7,6 +7,8 @@ import { generatePuzzle } from "./generatePuzzle";
 import type { Position, CellValue } from "./type";
 import { GAME_TIME, SAVE_KEY } from "../../parameters/game";
 
+type GamePhase = "playing" | "failed" | "continued" | "complete";
+
 type PuzzleState = {
   board: CellValue[][];
   given: boolean[][];
@@ -51,6 +53,11 @@ const getInitialTimeLeft = (): number => {
   return GAME_TIME;
 };
 
+const getInitialPhase = (): GamePhase => {
+  const timeLeft = getInitialTimeLeft();
+  return timeLeft === 0 ? "failed" : "playing";
+};
+
 const formatTime = (seconds: number): string => {
   const m = Math.floor(seconds / 60).toString().padStart(2, "0");
   const s = (seconds % 60).toString().padStart(2, "0");
@@ -83,31 +90,31 @@ const isBoardComplete = (board: CellValue[][]): boolean => {
 export const Game = () => {
   const [{ board, given }, setPuzzle] = useState<PuzzleState>(loadOrMakePuzzle);
   const [selected, setSelected] = useState<Position>(null);
-  const [complete, setComplete] = useState(false);
+  const [phase, setPhase] = useState<GamePhase>(getInitialPhase);
   const [timeLeft, setTimeLeft] = useState<number>(getInitialTimeLeft);
-  const [failed, setFailed] = useState<boolean>(() => getInitialTimeLeft() === 0);
 
   useEffect(() => {
     localStorage.setItem(SAVE_KEY, JSON.stringify({ board, given, timeLeft }));
   }, [board, given, timeLeft]);
 
   useEffect(() => {
-    if (isBoardComplete(board)) setComplete(true);
-  }, [board]);
+    if (phase === "playing" && isBoardComplete(board)) setPhase("complete");
+  }, [board, phase]);
 
+  // 게임 타이머
   useEffect(() => {
-    if (complete || failed) return;
+    if (phase !== "playing") return;
     const id = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          setFailed(true);
+          setPhase("failed");
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(id);
-  }, [complete, failed]);
+  }, [phase]);
 
   const handleCellClick = (row: number, col: number) => {
     setSelected((prev) =>
@@ -131,18 +138,21 @@ export const Game = () => {
     setPuzzle(makePuzzle());
     setTimeLeft(GAME_TIME);
     setSelected(null);
-    setComplete(false);
-    setFailed(false);
+    setPhase("playing");
   };
 
-  const isInputDisabled = failed || !selected || given[selected.row][selected.col];
+  const continueGame = () => {
+    setPhase("continued");
+  };
+
+  const isInputDisabled = phase === "failed" || !selected || given[selected.row][selected.col];
 
   return (
     <div className="w-full h-screen flex flex-col items-center bg-white">
       <div className="flex flex-col items-center justify-center flex-1 w-full px-4 gap-6">
         <p
           className={`text-2xl font-mono font-bold tabular-nums ${
-            timeLeft < 60 ? "text-red-500" : "text-slate-700"
+            phase === "playing" && timeLeft < 60 ? "text-red-500" : "text-slate-700"
           }`}
         >
           {formatTime(timeLeft)}
@@ -155,8 +165,8 @@ export const Game = () => {
         />
         <NumberPad onInput={handleNumberInput} disabled={isInputDisabled} />
       </div>
-      {complete && <GameCompleteModal onNewGame={resetGame} />}
-      {failed && <GameFailModal onRetry={resetGame} />}
+      {phase === "complete" && <GameCompleteModal onNewGame={resetGame} />}
+      {phase === "failed" && <GameFailModal onNewGame={resetGame} onContinue={continueGame} />}
     </div>
   );
 };
