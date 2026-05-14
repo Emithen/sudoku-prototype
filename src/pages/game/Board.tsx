@@ -8,11 +8,11 @@ const getCellBg = (
 ): string => {
   if (!selected) return "bg-white";
   const { row: sr, col: sc } = selected;
-  if (row === sr && col === sc) return "bg-gray-200";
+  if (row === sr && col === sc) return "bg-gray-300";
   // if (row === sr || col === sc || isSameBox(row, col, sr, sc))
   //   return "bg-blue-50";
   const selVal = board[sr][sc];
-  if (selVal !== null && board[row][col] === selVal) return "bg-blue-100";
+  if (selVal !== null && board[row][col] === selVal) return "bg-blue-300";
   return "bg-white";
 };
 
