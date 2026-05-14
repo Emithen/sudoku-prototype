@@ -142,6 +142,7 @@ export const Game = () => {
     if (!selected) return;
     const { row, col } = selected;
     if (given[row][col]) return;
+    if (board[row][col] !== null && value !== null) return;
     setPuzzle((prev) => {
       const next = prev.board.map((r) => [...r]);
       next[row][col] = value;
