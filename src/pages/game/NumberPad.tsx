@@ -8,26 +8,28 @@ export const NumberPad = ({
   disabled: boolean;
 }) => (
   <div
-    className={`w-full max-w-sm flex flex-col gap-2 transition-opacity duration-150 ${
+    className={`w-full max-w-sm flex flex-col gap-1.5 transition-opacity duration-150 ${
       disabled ? "opacity-30 pointer-events-none" : ""
     }`}
   >
-    <div className="grid grid-cols-3 gap-2">
+    <div className="flex justify-end gap-1.5">
+      <button
+        onClick={() => onInput(null)}
+        className="py-3 px-5 rounded-xl bg-slate-100 text-slate-500 text-base font-medium hover:bg-slate-200 active:scale-95 transition-all duration-100 cursor-pointer"
+      >
+        ⌫
+      </button>
+    </div>
+    <div className="flex gap-1.5">
       {DIGITS.map((n) => (
         <button
           key={n}
           onClick={() => onInput(n)}
-          className="py-4 rounded-xl bg-slate-100 text-slate-800 text-xl font-semibold hover:bg-slate-200 active:scale-95 transition-all duration-100 cursor-pointer"
+          className="flex-1 py-3.5 rounded-xl bg-slate-100 text-slate-800 text-base font-semibold hover:bg-slate-200 active:scale-95 transition-all duration-100 cursor-pointer"
         >
           {n}
         </button>
       ))}
     </div>
-    <button
-      onClick={() => onInput(null)}
-      className="w-full py-3 rounded-xl bg-slate-100 text-slate-500 text-sm font-medium hover:bg-slate-200 active:scale-95 transition-all duration-100 cursor-pointer"
-    >
-      지우기
-    </button>
   </div>
 );

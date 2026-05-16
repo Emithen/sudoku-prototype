@@ -165,8 +165,8 @@ export const Game = () => {
   const isInputDisabled = phase === "failed" || phase === "complete" || !selected || given[selected.row][selected.col];
 
   return (
-    <div className="w-full h-screen flex flex-col items-center bg-white">
-      <div className="flex flex-col items-center justify-center flex-1 w-full px-4 gap-6">
+    <div className="w-full h-dvh flex flex-col items-center bg-white">
+      <div className="flex flex-col items-center justify-center flex-1 min-h-0 w-full px-4 gap-6 overflow-hidden">
         <p
           className={`text-2xl font-mono font-bold tabular-nums ${
             phase === "playing" && timeLeft < 60 ? "text-red-500" : "text-slate-700"
