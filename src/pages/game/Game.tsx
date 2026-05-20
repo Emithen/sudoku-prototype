@@ -12,6 +12,8 @@ type GamePhase = "playing" | "failed" | "continued" | "complete";
 type PuzzleState = {
   board: CellValue[][];
   given: boolean[][];
+  solution: number[][];
+  wrong: boolean[][];
 };
 
 const DIFFICULTY_GIVENS: Record<string, number> = {
@@ -32,16 +34,25 @@ const parseSaved = () => {
 
 const makePuzzle = (difficulty: string): PuzzleState => {
   const givens = DIFFICULTY_GIVENS[difficulty] ?? DIFFICULTY_GIVENS.normal;
-  const puzzle = generatePuzzle(givens);
+  const { puzzle, solution } = generatePuzzle(givens);
   return {
     board: puzzle,
     given: puzzle.map((r) => r.map((v) => v !== null)),
+    solution,
+    wrong: Array.from({ length: 9 }, () => Array(9).fill(false)),
   };
 };
 
 const loadOrMakePuzzle = (): PuzzleState => {
   const data = parseSaved();
-  if (data?.board && data?.given) return { board: data.board, given: data.given };
+  if (data?.board && data?.given && data?.solution) {
+    return {
+      board: data.board,
+      given: data.given,
+      solution: data.solution,
+      wrong: data.wrong ?? Array.from({ length: 9 }, () => Array(9).fill(false)),
+    };
+  }
   return makePuzzle(data?.difficulty ?? "normal");
 };
 
@@ -101,7 +112,7 @@ const isBoardComplete = (board: CellValue[][]): boolean => {
 };
 
 export const Game = () => {
-  const [{ board, given }, setPuzzle] = useState<PuzzleState>(loadOrMakePuzzle);
+  const [{ board, given, solution, wrong }, setPuzzle] = useState<PuzzleState>(loadOrMakePuzzle);
   const [selected, setSelected] = useState<Position>(null);
   const [phase, setPhase] = useState<GamePhase>(getInitialPhase);
   const [timeLeft, setTimeLeft] = useState<number>(getInitialTimeLeft);
@@ -109,7 +120,7 @@ export const Game = () => {
 
   // 상태 변경 사항 로컬 스토리지에 반영
   useEffect(() => {
-    localStorage.setItem(SAVE_KEY, JSON.stringify({ board, given, timeLeft, phase, difficulty }));
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ board, given, timeLeft, phase, difficulty, solution, wrong }));
   }, [board, given, timeLeft, phase, difficulty]);
 
   // 성공 판정
@@ -142,11 +153,12 @@ export const Game = () => {
     if (!selected) return;
     const { row, col } = selected;
     if (given[row][col]) return;
-    if (board[row][col] !== null && value !== null) return;
     setPuzzle((prev) => {
-      const next = prev.board.map((r) => [...r]);
-      next[row][col] = value;
-      return { ...prev, board: next };
+      const nextBoard = prev.board.map((r) => [...r]);
+      const nextWrong = prev.wrong.map((r) => [...r]);
+      nextBoard[row][col] = value;
+      nextWrong[row][col] = value !== null && value !== prev.solution[row][col];
+      return { ...prev, board: nextBoard, wrong: nextWrong };
     });
   };
 
@@ -177,6 +189,7 @@ export const Game = () => {
         <Board
           board={board}
           given={given}
+          wrong={wrong}
           selected={selected}
           onCellClick={handleCellClick}
         />

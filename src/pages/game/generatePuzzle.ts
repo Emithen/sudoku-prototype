@@ -74,12 +74,14 @@ function hasUniqueSolution(grid: Grid): boolean {
  * givens: 남길 주어진 숫자 칸의 수 (권장 범위: 27~45)
  * 최솟값은 17 (수학적으로 유일 해를 보장하는 최소 givens)
  */
-export function generatePuzzle(givens: number): CellValue[][] {
+export function generatePuzzle(givens: number): { puzzle: CellValue[][]; solution: number[][] } {
   const clampedGivens = Math.max(17, Math.min(80, givens));
   const toRemove = 81 - clampedGivens;
 
   const grid: Grid = Array.from({ length: 9 }, () => Array(9).fill(0));
   fillGrid(grid, 0);
+
+  const solution = grid.map((r) => [...r]);
 
   const positions = shuffle(Array.from({ length: 81 }, (_, i) => i));
   let removed = 0;
@@ -100,5 +102,8 @@ export function generatePuzzle(givens: number): CellValue[][] {
     }
   }
 
-  return grid.map((r) => r.map((v) => (v === 0 ? null : v)));
+  return {
+    puzzle: grid.map((r) => r.map((v) => (v === 0 ? null : v))),
+    solution,
+  };
 }

@@ -21,11 +21,13 @@ const getCellBg = (
 export const Board = ({
   board,
   given,
+  wrong,
   selected,
   onCellClick,
 }: {
   board: CellValue[][];
   given: boolean[][];
+  wrong: boolean[][];
   selected: Position;
   onCellClick: (row: number, col: number) => void;
 }) => (
@@ -40,6 +42,7 @@ export const Board = ({
           boxCol={bc}
           board={board}
           given={given}
+          wrong={wrong}
           selected={selected}
           onCellClick={onCellClick}
         />
@@ -54,6 +57,7 @@ const Box = ({
   boxCol,
   board,
   given,
+  wrong,
   selected,
   onCellClick,
 }: {
@@ -61,6 +65,7 @@ const Box = ({
   boxCol: number;
   board: CellValue[][];
   given: boolean[][];
+  wrong: boolean[][];
   selected: Position;
   onCellClick: (row: number, col: number) => void;
 }) => (
@@ -73,6 +78,7 @@ const Box = ({
           key={`${row}-${col}`}
           value={board[row][col]}
           isGiven={given[row][col]}
+          isWrong={wrong[row][col]}
           bg={getCellBg(row, col, selected, board)}
           onClick={() => onCellClick(row, col)}
         />
@@ -85,11 +91,13 @@ const Box = ({
 const Cell = ({
   value,
   isGiven,
+  isWrong,
   bg,
   onClick,
 }: {
   value: CellValue;
   isGiven: boolean;
+  isWrong: boolean;
   bg: string;
   onClick: () => void;
 }) => (
@@ -100,7 +108,11 @@ const Cell = ({
     {value !== null && (
       <span
         className={`text-lg leading-none ${
-          isGiven ? "font-semibold text-slate-800" : "font-medium text-blue-500"
+          isGiven
+            ? "font-semibold text-slate-800"
+            : isWrong
+              ? "font-medium text-red-500"
+              : "font-medium text-blue-500"
         }`}
       >
         {value}
